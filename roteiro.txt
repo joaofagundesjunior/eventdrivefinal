@@ -1,0 +1,43 @@
+# Roteiro de Apresentação do Projeto Final (5 minutos)
+
+## 1. Introdução e Objetivo (0:30)
+- Boas-vindas e apresentação do projeto "Delivery de Pizza Serverless".
+- Objetivo: Demonstrar uma solução completa no GCP com foco em serverless e CI/CD.
+
+## 2. Checkpoint 4: Delivery de Pizza Consolidado (1:00)
+- Breve revisão do sistema de delivery de pizza.
+- Funções principais: `reservar_pizza`, `preparar_pizza`, `cobrar_pagamento`, `enviar_pizza`.
+- Funções acionadas por HTTP, simulando um fluxo de pedido.
+- Importância da função `dead_letter` para resiliência (Pub/Sub DLQ).
+
+## 3. Arquitetura (Mostrar Diagrama) (1:30)
+- Apresentar o diagrama de arquitetura (referência ao `README.md`).
+- Explicar os componentes principais:
+    - Cliente -> API Gateway/Load Balancer -> Funções HTTP.
+    - Pub/Sub para comunicação assíncrona (especialmente para `dead_letter`).
+    - Cloud Logging para observabilidade.
+    - Cloud Build como o centro do CI/CD.
+- Destaque para a natureza serverless e orientada a eventos.
+
+## 4. Checkpoint 5: CI/CD com Google Cloud Build (1:30)
+- **Service Accounts de Menor Privilégio:** Uma SA por função, garantindo segurança (ex: `logging.logWriter`).
+- **Secret Manager:** Como a `PAYMENT_API_KEY` é armazenada e injetada com segurança.
+- **`cloudbuild.yaml`:** Visão geral dos passos:
+    - Testes (mencionar placeholders).
+    - Build e Deploy (usando Cloud Buildpacks para eficiência, sem Dockerfiles manuais).
+    - Deploy no Cloud Run (2ª Geração).
+- **Gatilhos:** Configurado para `main` e `release`.
+
+## 5. Demonstração do Fluxo Commit → Deploy (0:45)
+- **Opcional, se houver tempo:** Mostrar um commit rápido e o pipeline do Cloud Build sendo acionado.
+- Ou, explicar o que aconteceria:
+    - Push no Git -> Cloud Build dispara.
+    - Buildpacks constroem imagens -> Artifact Registry.
+    - Cloud Run atualiza as funções.
+    - Funções ficam no ar.
+- Mencionar como verificar o deploy e os logs.
+
+## 6. Conclusão (0:15)
+- Recapitulando: Sistema serverless resiliente com automação de CI/CD completa.
+- Benefícios: Escalabilidade, custo-efetividade, segurança e agilidade no desenvolvimento.
+- Agradecimentos e abertura para perguntas.

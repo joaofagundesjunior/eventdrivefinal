@@ -1,0 +1,206 @@
+
+
+steps:
+  # Step 0: Set up environment variables
+  - id: 'set-env-vars'
+    name: 'ubuntu/cloud-sdk:latest'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "PROJECT_ID=${PROJECT_ID}" >> /workspace/env_vars.env
+        echo "REGION=us-central1" >> /workspace/env_vars.env # Adjust region as needed
+        echo "REPOSITORY_NAME=cloud-run-source-deploy" >> /workspace/env_vars.env
+        # API_GATEWAY_URL=$(gcloud run services describe api-gateway-service --platform managed --region us-central1 --format='value(status.url)' || true) # This is commented out as it expects a service to exist
+        echo "API_GATEWAY_URL=NOT_DEPLOYED_YET" >> /workspace/env_vars.env
+    env:
+      - 'PROJECT_ID=${_PROJECT_ID}'
+    volume:
+      name: 'env-vars'
+      path: '/workspace'
+
+  # Step 1: Run tests (placeholder, actual tests should be added)
+  - id: 'run-tests-cobrar-pagamento'
+    name: 'python:3.9-slim'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        source /workspace/env_vars.env
+        echo "Running tests for cobrar_pagamento..."
+        # Example of a placeholder test:
+        # pip install -r checkpoint4/functions/cobrar_pagamento/requirements.txt
+        # python -m pytest checkpoint4/functions/cobrar_pagamento/tests/
+        echo "Tests for cobrar_pagamento passed (placeholder)."
+    volume:
+      name: 'env-vars'
+      path: '/workspace'
+
+  - id: 'run-tests-dead-letter'
+    name: 'python:3.9-slim'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        source /workspace/env_vars.env
+        echo "Running tests for dead_letter..."
+        echo "Tests for dead_letter passed (placeholder)."
+    volume:
+      name: 'env-vars'
+      path: '/workspace'
+
+  - id: 'run-tests-enviar-pizza'
+    name: 'python:3.9-slim'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        source /workspace/env_vars.env
+        echo "Running tests for enviar_pizza..."
+        echo "Tests for enviar_pizza passed (placeholder)."
+    volume:
+      name: 'env-vars'
+      path: '/workspace'
+
+  - id: 'run-tests-preparar-pizza'
+    name: 'python:3.9-slim'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        source /workspace/env_vars.env
+        echo "Running tests for preparar_pizza..."
+        echo "Tests for preparar_pizza passed (placeholder)."
+    volume:
+      name: 'env-vars'
+      path: '/workspace'
+
+  - id: 'run-tests-reservar-pizza'
+    name: 'python:3.9-slim'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        source /workspace/env_vars.env
+        echo "Running tests for reservar_pizza..."
+        echo "Tests for reservar_pizza passed (placeholder)."
+    volume:
+      name: 'env-vars'
+      path: '/workspace'
+
+  # Step 2: Deploy to Cloud Run (2nd Gen)
+  - id: 'deploy-cobrar-pagamento'
+    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'cobrar-pagamento'
+      - '--source'
+      - './checkpoint4/functions/cobrar_pagamento'
+      - '--platform'
+      - 'managed'
+      - '--region'
+      - 'us-central1'
+      - '--allow-unauthenticated' # Adjust authentication as needed
+      - '--service-account'
+      - 'sa-cobrar-pagamento@${_PROJECT_ID}.iam.gserviceaccount.com'
+      - '--update-env-vars'
+      - 'PROJECT_ID=${_PROJECT_ID}'
+      - '--set-secrets'
+      - 'PAYMENT_API_KEY=projects/${_PROJECT_ID}/secrets/PAYMENT_API_KEY/versions/latest'
+      - '--entry-point'
+      - 'cobrar_pagamento'
+
+  - id: 'deploy-dead-letter'
+    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'dead-letter'
+      - '--source'
+      - './checkpoint4/functions/dead_letter'
+      - '--platform'
+      - 'managed'
+      - '--region'
+      - 'us-central1'
+      - '--service-account'
+      - 'sa-dead-letter@${_PROJECT_ID}.iam.gserviceaccount.com'
+      - '--update-env-vars'
+      - 'PROJECT_ID=${_PROJECT_ID}'
+      - '--trigger-topic'
+      - 'dead-letter-topic' # Assuming a Pub/Sub topic named 'dead-letter-topic'
+      - '--set-env-vars'
+      - 'PUBSUB_TOPIC=dead-letter-topic' # Environment variable for the function
+      - '--entry-point'
+      - 'dead_letter'
+
+  - id: 'deploy-enviar-pizza'
+    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'enviar-pizza'
+      - '--source'
+      - './checkpoint4/functions/enviar_pizza'
+      - '--platform'
+      - 'managed'
+      - '--region'
+      - 'us-central1'
+      - '--allow-unauthenticated'
+      - '--service-account'
+      - 'sa-enviar-pizza@${_PROJECT_ID}.iam.gserviceaccount.com'
+      - '--update-env-vars'
+      - 'PROJECT_ID=${_PROJECT_ID}'
+      - '--entry-point'
+      - 'enviar_pizza'
+
+  - id: 'deploy-preparar-pizza'
+    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'preparar-pizza'
+      - '--source'
+      - './checkpoint4/functions/preparar_pizza'
+      - '--platform'
+      - 'managed'
+      - '--region'
+      - 'us-central1'
+      - '--allow-unauthenticated'
+      - '--service-account'
+      - 'sa-preparar-pizza@${_PROJECT_ID}.iam.gserviceaccount.com'
+      - '--update-env-vars'
+      - 'PROJECT_ID=${_PROJECT_ID}'
+      - '--entry-point'
+      - 'preparar_pizza'
+
+  - id: 'deploy-reservar-pizza'
+    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'reservar-pizza'
+      - '--source'
+      - './checkpoint4/functions/reservar_pizza'
+      - '--platform'
+      - 'managed'
+      - '--region'
+      - 'us-central1'
+      - '--allow-unauthenticated'
+      - '--service-account'
+      - 'sa-reservar-pizza@${_PROJECT_ID}.iam.gserviceaccount.com'
+      - '--update-env-vars'
+      - 'PROJECT_ID=${_PROJECT_ID}'
+      - '--entry-point'
+      - 'reservar_pizza'
+
+substitutions:
+  _PROJECT_ID: project-62f09b8b-cbd8-428e-8f5 # Your GCP Project ID
+tags:
+  - 'cloud-run-deployment'
+
