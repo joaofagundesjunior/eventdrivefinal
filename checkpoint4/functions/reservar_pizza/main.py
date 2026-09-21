@@ -1,0 +1,38 @@
+import functions_framework
+import json
+import os
+
+def log_event(message, request, severity="INFO"):
+    project_id = os.environ.get("PROJECT_ID")
+    trace_header = request.headers.get("X-Cloud-Trace-Context")
+    
+    log_entry = {
+        "message": message,
+        "severity": severity
+    }
+
+    if trace_header:
+        trace_parts = trace_header.split("/")
+        trace_id = trace_parts[0]
+        span_id = trace_parts[1].split(";")[0] if len(trace_parts) > 1 else None
+        
+        log_entry["logging.googleapis.com/trace"] = f"projects/{project_id}/traces/{trace_id}"
+        if span_id:
+            log_entry["logging.googleapis.com/spanId"] = span_id
+
+    print(json.dumps(log_entry))
+
+@functions_framework.http
+def reservar_pizza(request):
+    request_json = request.get_json(silent=True)
+    
+    # Debug: Log headers to see trace context
+    headers_dict = dict(request.headers)
+    log_event(f"Headers recebidos: {json.dumps(headers_dict)}", request)
+    
+    if not request_json or 'order_id' not in request_json:
+        log_event("Erro: order_id ausente no pedido", request, severity="ERROR")
+        return json.dumps({"error": "Missing order_id"}), 400
+    
+    log_event(f"Reservando ingredientes para o pedido {request_json['order_id']}", request)
+    return json.dumps({"status": "reserved", "order_id": request_json['order_id']}), 200

@@ -1,0 +1,93 @@
+main:
+  params: [input]
+  steps:
+    - init:
+        assign:
+          - order_id: ${input.order.id}
+          - amount: ${input.order.amount}
+          - idempotency_key: ${uuid.generate()}
+          - project_id: ${sys.get_env("PROJECT_ID")}
+          - topic_name: "orders-dlq"
+    - process_order:
+        try:
+          steps:
+            - reservar:
+                call: http.post
+                args:
+                  url: ${sys.get_env("RESERVAR_PIZZA_URL")}
+                  auth:
+                    type: OIDC
+                  body:
+                    order_id: ${order_id}
+                result: reservar_res
+            
+            - delay_30s:
+                call: sys.sleep
+                args:
+                  seconds: 30
+            
+            - cobrar:
+                try:
+                  call: http.post
+                  args:
+                    url: ${sys.get_env("COBRAR_PAGAMENTO_URL")}
+                    auth:
+                      type: OIDC
+                    headers:
+                      Idempotency-Key: ${idempotency_key}
+                    body:
+                      order_id: ${order_id}
+                      amount: ${amount}
+                  result: cobrar_res
+                retry:
+                  predicate: ${http.default_retry_predicate}
+                  max_retries: 5
+                  backoff:
+                    initial_delay: 2
+                    max_delay: 60
+                    multiplier: 2
+            
+            - preparar:
+                call: http.post
+                args:
+                  url: ${sys.get_env("PREPARAR_PIZZA_URL")}
+                  auth:
+                    type: OIDC
+                  body:
+                    order_id: ${order_id}
+                result: preparar_res
+            
+            - delay_5min:
+                call: sys.sleep
+                args:
+                  seconds: 300
+            
+            - delay_1min:
+                call: sys.sleep
+                args:
+                  seconds: 60
+            
+            - enviar:
+                call: http.post
+                args:
+                  url: ${sys.get_env("ENVIAR_PIZZA_URL")}
+                  auth:
+                    type: OIDC
+                  body:
+                    order_id: ${order_id}
+                result: enviar_res
+            
+            - finish:
+                return: ${enviar_res.body}
+        except:
+          as: e
+          steps:
+            - report_failure:
+                call: googleapis.pubsub.v1.projects.topics.publish
+                args:
+                  topic: ${"projects/" + project_id + "/topics/" + topic_name}
+                  body:
+                    messages:
+                      - data: ${base64.encode(json.encode(e))}
+            - fail:
+                raise: ${e}
