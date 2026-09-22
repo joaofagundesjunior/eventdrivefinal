@@ -16,6 +16,10 @@ variable "payment_api_key" {
 }
 
 terraform {
+  backend "gcs" {
+    bucket  = "project-62f09b8b-cbd8-428e-8f5-tfstate"
+    prefix  = "terraform/state"
+  }
   required_providers {
     google = {
       source  = "hashicorp/google"
