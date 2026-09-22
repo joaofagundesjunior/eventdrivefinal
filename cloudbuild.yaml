@@ -80,7 +80,7 @@ steps:
       - '-c'
       - |
         gcloud config set project ${_PROJECT_ID}
-        gcloud run deploy dead-letter --project=${_PROJECT_ID} --source ./functions/dead_letter --platform managed --region us-central1 --service-account sa-dead-letter@${_PROJECT_ID}.iam.gserviceaccount.com --update-env-vars PROJECT_ID=${_PROJECT_ID} --trigger-topic dead-letter-topic --set-env-vars PUBSUB_TOPIC=dead-letter-topic --quiet
+        gcloud run deploy dead-letter --project=${_PROJECT_ID} --source ./functions/dead_letter --platform managed --region us-central1 --service-account sa-dead-letter@${_PROJECT_ID}.iam.gserviceaccount.com --update-env-vars PROJECT_ID=${_PROJECT_ID} --quiet
 
   - id: 'deploy-enviar-pizza'
     name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
