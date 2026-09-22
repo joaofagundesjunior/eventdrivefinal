@@ -1,5 +1,5 @@
 steps:
-  # Step 0: Set up environment variables
+  # Step 0: Set up environment variables #
   - id: 'set-env-vars'
     name: 'google/cloud-sdk:latest'
     entrypoint: 'bash'
