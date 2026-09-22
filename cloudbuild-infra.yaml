@@ -1,0 +1,17 @@
+steps:
+  - id: 'tf-init'
+    name: 'hashicorp/terraform:latest'
+    entrypoint: 'sh'
+    args: ['-c', 'cd terraform && terraform init']
+  
+  - id: 'tf-apply'
+    name: 'hashicorp/terraform:latest'
+    entrypoint: 'sh'
+    args: ['-c', 'cd terraform && terraform apply -auto-approve -var="project_id=${_PROJECT_ID}" -var="payment_api_key=${_PAYMENT_API_KEY}"']
+
+substitutions:
+  _PROJECT_ID: project-62f09b8b-cbd8-428e-8f5
+  _PAYMENT_API_KEY: 'dummy-key'
+options:
+  logging: CLOUD_LOGGING_ONLY
+serviceAccount: projects/project-62f09b8b-cbd8-428e-8f5/serviceAccounts/sa-cloudbuild-deploy@project-62f09b8b-cbd8-428e-8f5.iam.gserviceaccount.com
