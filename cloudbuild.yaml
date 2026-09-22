@@ -6,6 +6,7 @@ steps:
     args:
       - '-c'
       - |
+        gcloud auth list
         echo "PROJECT_ID=${_PROJECT_ID}" >> /workspace/env_vars.env
         echo "REGION=us-central1" >> /workspace/env_vars.env
         echo "REPOSITORY_NAME=cloud-run-source-deploy" >> /workspace/env_vars.env
@@ -65,108 +66,48 @@ steps:
   # Step 2: Deploy to Cloud Run (2nd Gen)
   - id: 'deploy-cobrar-pagamento'
     name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'gcloud'
+    entrypoint: 'bash'
     args:
-      - 'run'
-      - 'deploy'
-      - 'cobrar-pagamento'
-      - '--source'
-      - './functions/cobrar_pagamento'
-      - '--platform'
-      - 'managed'
-      - '--region'
-      - 'us-central1'
-      - '--allow-unauthenticated'
-      - '--service-account'
-      - 'sa-cobrar-pagamento@${_PROJECT_ID}.iam.gserviceaccount.com'
-      - '--update-env-vars'
-      - 'PROJECT_ID=${_PROJECT_ID}'
-      - '--set-secrets'
-      - 'PAYMENT_API_KEY=projects/${_PROJECT_ID}/secrets/PAYMENT_API_KEY/versions/latest'
-      - '--quiet'
+      - '-c'
+      - |
+        gcloud config set project ${_PROJECT_ID}
+        gcloud run deploy cobrar-pagamento --project=${_PROJECT_ID} --source ./functions/cobrar_pagamento --platform managed --region us-central1 --allow-unauthenticated --service-account sa-cobrar-pagamento@${_PROJECT_ID}.iam.gserviceaccount.com --update-env-vars PROJECT_ID=${_PROJECT_ID} --set-secrets PAYMENT_API_KEY=PAYMENT_API_KEY:latest --quiet
 
   - id: 'deploy-dead-letter'
     name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'gcloud'
+    entrypoint: 'bash'
     args:
-      - 'run'
-      - 'deploy'
-      - 'dead-letter'
-      - '--source'
-      - './functions/dead_letter'
-      - '--platform'
-      - 'managed'
-      - '--region'
-      - 'us-central1'
-      - '--service-account'
-      - 'sa-dead-letter@${_PROJECT_ID}.iam.gserviceaccount.com'
-      - '--update-env-vars'
-      - 'PROJECT_ID=${_PROJECT_ID}'
-      - '--quiet'
-      - '--trigger-topic'
-      - 'dead-letter-topic'
-      - '--set-env-vars'
-      - 'PUBSUB_TOPIC=dead-letter-topic'
+      - '-c'
+      - |
+        gcloud config set project ${_PROJECT_ID}
+        gcloud run deploy dead-letter --project=${_PROJECT_ID} --source ./functions/dead_letter --platform managed --region us-central1 --service-account sa-dead-letter@${_PROJECT_ID}.iam.gserviceaccount.com --update-env-vars PROJECT_ID=${_PROJECT_ID} --trigger-topic dead-letter-topic --set-env-vars PUBSUB_TOPIC=dead-letter-topic --quiet
 
   - id: 'deploy-enviar-pizza'
     name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'gcloud'
+    entrypoint: 'bash'
     args:
-      - 'run'
-      - 'deploy'
-      - 'enviar-pizza'
-      - '--source'
-      - './functions/enviar_pizza'
-      - '--platform'
-      - 'managed'
-      - '--region'
-      - 'us-central1'
-      - '--allow-unauthenticated'
-      - '--service-account'
-      - 'sa-enviar-pizza@${_PROJECT_ID}.iam.gserviceaccount.com'
-      - '--update-env-vars'
-      - 'PROJECT_ID=${_PROJECT_ID}'
-      - '--quiet'
+      - '-c'
+      - |
+        gcloud config set project ${_PROJECT_ID}
+        gcloud run deploy enviar-pizza --project=${_PROJECT_ID} --source ./functions/enviar_pizza --platform managed --region us-central1 --allow-unauthenticated --service-account sa-enviar-pizza@${_PROJECT_ID}.iam.gserviceaccount.com --update-env-vars PROJECT_ID=${_PROJECT_ID} --quiet
 
   - id: 'deploy-preparar-pizza'
     name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'gcloud'
+    entrypoint: 'bash'
     args:
-      - 'run'
-      - 'deploy'
-      - 'preparar-pizza'
-      - '--source'
-      - './functions/preparar_pizza'
-      - '--platform'
-      - 'managed'
-      - '--region'
-      - 'us-central1'
-      - '--allow-unauthenticated'
-      - '--service-account'
-      - 'sa-preparar-pizza@${_PROJECT_ID}.iam.gserviceaccount.com'
-      - '--update-env-vars'
-      - 'PROJECT_ID=${_PROJECT_ID}'
-      - '--quiet'
+      - '-c'
+      - |
+        gcloud config set project ${_PROJECT_ID}
+        gcloud run deploy preparar-pizza --project=${_PROJECT_ID} --source ./functions/preparar_pizza --platform managed --region us-central1 --allow-unauthenticated --service-account sa-preparar-pizza@${_PROJECT_ID}.iam.gserviceaccount.com --update-env-vars PROJECT_ID=${_PROJECT_ID} --quiet
 
   - id: 'deploy-reservar-pizza'
     name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'gcloud'
+    entrypoint: 'bash'
     args:
-      - 'run'
-      - 'deploy'
-      - 'reservar-pizza'
-      - '--source'
-      - './functions/reservar_pizza'
-      - '--platform'
-      - 'managed'
-      - '--region'
-      - 'us-central1'
-      - '--allow-unauthenticated'
-      - '--service-account'
-      - 'sa-reservar-pizza@${_PROJECT_ID}.iam.gserviceaccount.com'
-      - '--update-env-vars'
-      - 'PROJECT_ID=${_PROJECT_ID}'
-      - '--quiet'
+      - '-c'
+      - |
+        gcloud config set project ${_PROJECT_ID}
+        gcloud run deploy reservar-pizza --project=${_PROJECT_ID} --source ./functions/reservar_pizza --platform managed --region us-central1 --allow-unauthenticated --service-account sa-reservar-pizza@${_PROJECT_ID}.iam.gserviceaccount.com --update-env-vars PROJECT_ID=${_PROJECT_ID} --quiet
 
 substitutions:
   _PROJECT_ID: project-62f09b8b-cbd8-428e-8f5
@@ -174,3 +115,4 @@ tags:
   - 'cloud-run-deployment'
 options:
   logging: CLOUD_LOGGING_ONLY
+serviceAccount: projects/project-62f09b8b-cbd8-428e-8f5/serviceAccounts/sa-cloudbuild-deploy@project-62f09b8b-cbd8-428e-8f5.iam.gserviceaccount.com
