@@ -290,3 +290,4 @@ EOF
 
   depends_on = [google_project_service.monitoring_api]
 }
+# Teste de validacao de pipeline infra
