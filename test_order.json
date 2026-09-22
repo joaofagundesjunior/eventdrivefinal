@@ -1,7 +1,7 @@
 {
-  "order": {
+  order": {
     "id": "pedido-v1-001",
-    "amount": 89.50,
+    "amount": 89.90,
     "customer": "João Silva",
     "items": [
       "Pizza Calabresa Família",
