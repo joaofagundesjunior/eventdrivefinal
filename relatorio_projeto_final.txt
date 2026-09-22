@@ -1,4 +1,4 @@
-# Relatório Final: Arquitetura Serverless e Orquestração de Pedidos (Checkpoint 3)
+# Relatório Final: Arquitetura Serverless e Orquestração de Pedidos
 
 ## 1. Escopo Técnico
 Implementação de um pipeline de pedidos de pizza utilizando Google Cloud Workflows para orquestrar Cloud Functions (2ª Geração). A solução foca em desacoplamento, segurança via Secret Manager e resiliência com Pub/Sub (DLQ), tudo automatizado via Terraform.
@@ -31,7 +31,6 @@ Logs confirmam que a função de pagamento acessou o segredo apenas quando autor
 Foi validado que falhas no input são capturadas imediatamente, resultando em STATE: FAILED e impedindo o processamento de dados inconsistentes.
 
 ## 5. Repositório para Avaliação
-Link: https://github.com/joaofagundesjunior/SERVERLESS-COMPUTINGEARQUITETURAS-EVENT-DRIVEN/tree/main/checkpoint4
+Link: https://github.com/joaofagundesjunior/GCP/projetofinal
 
 ---
-Relatório gerado em: 30/08/2026

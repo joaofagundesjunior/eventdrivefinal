@@ -4,7 +4,7 @@
 - Boas-vindas e apresentação do projeto "Delivery de Pizza Serverless".
 - Objetivo: Demonstrar uma solução completa no GCP com foco em serverless e CI/CD.
 
-## 2. Checkpoint 4: Delivery de Pizza Consolidado (1:00)
+## 2. Projeto Final: Delivery de Pizza Consolidado (1:00)
 - Breve revisão do sistema de delivery de pizza.
 - Funções principais: `reservar_pizza`, `preparar_pizza`, `cobrar_pagamento`, `enviar_pizza`.
 - Funções acionadas por HTTP, simulando um fluxo de pedido.
@@ -19,7 +19,7 @@
     - Cloud Build como o centro do CI/CD.
 - Destaque para a natureza serverless e orientada a eventos.
 
-## 4. Checkpoint 5: CI/CD com Google Cloud Build (1:30)
+## 4. CI/CD com Google Cloud Build (1:30)
 - **Service Accounts de Menor Privilégio:** Uma SA por função, garantindo segurança (ex: `logging.logWriter`).
 - **Secret Manager:** Como a `PAYMENT_API_KEY` é armazenada e injetada com segurança.
 - **`cloudbuild.yaml`:** Visão geral dos passos:

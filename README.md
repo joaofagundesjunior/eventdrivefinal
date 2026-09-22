@@ -38,7 +38,7 @@ graph TD
 
 ## 2. Funções Serverless
 
-O projeto contém as seguintes funções, localizadas em `checkpoint4/functions/`:
+O projeto contém as seguintes funções, localizadas em `functions/`:
 
 -   **`cobrar_pagamento` (HTTP Triggered):** Processa o pagamento de um pedido.
 -   **`reservar_pizza` (HTTP Triggered):** Simula a reserva de ingredientes para um pedido.

@@ -1,23 +1,16 @@
 
-
 steps:
   # Step 0: Set up environment variables
   - id: 'set-env-vars'
-    name: 'ubuntu/cloud-sdk:latest'
+    name: 'google/cloud-sdk:latest'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        echo "PROJECT_ID=${PROJECT_ID}" >> /workspace/env_vars.env
-        echo "REGION=us-central1" >> /workspace/env_vars.env # Adjust region as needed
+        echo "PROJECT_ID=${_PROJECT_ID}" >> /workspace/env_vars.env
+        echo "REGION=us-central1" >> /workspace/env_vars.env
         echo "REPOSITORY_NAME=cloud-run-source-deploy" >> /workspace/env_vars.env
-        # API_GATEWAY_URL=$(gcloud run services describe api-gateway-service --platform managed --region us-central1 --format='value(status.url)' || true) # This is commented out as it expects a service to exist
         echo "API_GATEWAY_URL=NOT_DEPLOYED_YET" >> /workspace/env_vars.env
-    env:
-      - 'PROJECT_ID=${_PROJECT_ID}'
-    volume:
-      name: 'env-vars'
-      path: '/workspace'
 
   # Step 1: Run tests (placeholder, actual tests should be added)
   - id: 'run-tests-cobrar-pagamento'
@@ -28,13 +21,7 @@ steps:
       - |
         source /workspace/env_vars.env
         echo "Running tests for cobrar_pagamento..."
-        # Example of a placeholder test:
-        # pip install -r checkpoint4/functions/cobrar_pagamento/requirements.txt
-        # python -m pytest checkpoint4/functions/cobrar_pagamento/tests/
         echo "Tests for cobrar_pagamento passed (placeholder)."
-    volume:
-      name: 'env-vars'
-      path: '/workspace'
 
   - id: 'run-tests-dead-letter'
     name: 'python:3.9-slim'
@@ -45,9 +32,6 @@ steps:
         source /workspace/env_vars.env
         echo "Running tests for dead_letter..."
         echo "Tests for dead_letter passed (placeholder)."
-    volume:
-      name: 'env-vars'
-      path: '/workspace'
 
   - id: 'run-tests-enviar-pizza'
     name: 'python:3.9-slim'
@@ -58,9 +42,6 @@ steps:
         source /workspace/env_vars.env
         echo "Running tests for enviar_pizza..."
         echo "Tests for enviar_pizza passed (placeholder)."
-    volume:
-      name: 'env-vars'
-      path: '/workspace'
 
   - id: 'run-tests-preparar-pizza'
     name: 'python:3.9-slim'
@@ -71,9 +52,6 @@ steps:
         source /workspace/env_vars.env
         echo "Running tests for preparar_pizza..."
         echo "Tests for preparar_pizza passed (placeholder)."
-    volume:
-      name: 'env-vars'
-      path: '/workspace'
 
   - id: 'run-tests-reservar-pizza'
     name: 'python:3.9-slim'
@@ -84,9 +62,6 @@ steps:
         source /workspace/env_vars.env
         echo "Running tests for reservar_pizza..."
         echo "Tests for reservar_pizza passed (placeholder)."
-    volume:
-      name: 'env-vars'
-      path: '/workspace'
 
   # Step 2: Deploy to Cloud Run (2nd Gen)
   - id: 'deploy-cobrar-pagamento'
@@ -97,12 +72,12 @@ steps:
       - 'deploy'
       - 'cobrar-pagamento'
       - '--source'
-      - './checkpoint4/functions/cobrar_pagamento'
+      - './functions/cobrar_pagamento'
       - '--platform'
       - 'managed'
       - '--region'
       - 'us-central1'
-      - '--allow-unauthenticated' # Adjust authentication as needed
+      - '--allow-unauthenticated'
       - '--service-account'
       - 'sa-cobrar-pagamento@${_PROJECT_ID}.iam.gserviceaccount.com'
       - '--update-env-vars'
@@ -120,7 +95,7 @@ steps:
       - 'deploy'
       - 'dead-letter'
       - '--source'
-      - './checkpoint4/functions/dead_letter'
+      - './functions/dead_letter'
       - '--platform'
       - 'managed'
       - '--region'
@@ -130,9 +105,9 @@ steps:
       - '--update-env-vars'
       - 'PROJECT_ID=${_PROJECT_ID}'
       - '--trigger-topic'
-      - 'dead-letter-topic' # Assuming a Pub/Sub topic named 'dead-letter-topic'
+      - 'dead-letter-topic'
       - '--set-env-vars'
-      - 'PUBSUB_TOPIC=dead-letter-topic' # Environment variable for the function
+      - 'PUBSUB_TOPIC=dead-letter-topic'
       - '--entry-point'
       - 'dead_letter'
 
@@ -144,7 +119,7 @@ steps:
       - 'deploy'
       - 'enviar-pizza'
       - '--source'
-      - './checkpoint4/functions/enviar_pizza'
+      - './functions/enviar_pizza'
       - '--platform'
       - 'managed'
       - '--region'
@@ -165,7 +140,7 @@ steps:
       - 'deploy'
       - 'preparar-pizza'
       - '--source'
-      - './checkpoint4/functions/preparar_pizza'
+      - './functions/preparar_pizza'
       - '--platform'
       - 'managed'
       - '--region'
@@ -186,7 +161,7 @@ steps:
       - 'deploy'
       - 'reservar-pizza'
       - '--source'
-      - './checkpoint4/functions/reservar_pizza'
+      - './functions/reservar_pizza'
       - '--platform'
       - 'managed'
       - '--region'
@@ -200,7 +175,6 @@ steps:
       - 'reservar_pizza'
 
 substitutions:
-  _PROJECT_ID: project-62f09b8b-cbd8-428e-8f5 # Your GCP Project ID
+  _PROJECT_ID: project-62f09b8b-cbd8-428e-8f5
 tags:
   - 'cloud-run-deployment'
-
